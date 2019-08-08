@@ -1,4 +1,4 @@
-package com.jzy.community.community.model;
+package com.jzy.community.model;
 
 /**
  * @author jzy

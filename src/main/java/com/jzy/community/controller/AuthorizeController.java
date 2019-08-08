@@ -1,17 +1,19 @@
-package com.jzy.community.community.controller;
+package com.jzy.community.controller;
 
-import com.jzy.community.community.dto.AccessTokenDTO;
-import com.jzy.community.community.dto.GithubUser;
-import com.jzy.community.community.mapper.UserMapper;
-import com.jzy.community.community.model.User;
-import com.jzy.community.community.provider.GitHubProvider;
+import com.jzy.community.dto.AccessTokenDTO;
+import com.jzy.community.dto.GithubUser;
+import com.jzy.community.mapper.UserMapper;
+import com.jzy.community.model.User;
+import com.jzy.community.provider.GitHubProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 /**
@@ -39,7 +41,8 @@ public class AuthorizeController {
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code")String code,
                            @RequestParam(name = "state")String state,
-                           HttpServletRequest request){
+                           HttpServletRequest request,
+                           HttpServletResponse response){
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
         accessTokenDTO.setRedirect_uri(redirectUri);
@@ -53,13 +56,15 @@ public class AuthorizeController {
         if (githubUser != null){
 
             User user = new User();
-            user.setToken(UUID.randomUUID().toString());
+            String token = UUID.randomUUID().toString();
+            user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId()));
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
             userMapper.insert(user);
-            request.getSession().setAttribute("githubuser",githubUser);
+            response.addCookie(new Cookie("token",token));
+
             return "redirect:/";
         }else{
             return "redirect:/";

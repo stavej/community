@@ -1,4 +1,4 @@
-package com.jzy.community.community.dto;
+package com.jzy.community.dto;
 
 /**
  * @author jzy
