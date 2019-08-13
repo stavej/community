@@ -5,6 +5,7 @@ import com.jzy.community.dto.GithubUser;
 import com.jzy.community.mapper.UserMapper;
 import com.jzy.community.model.User;
 import com.jzy.community.provider.GitHubProvider;
+import com.jzy.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -34,14 +35,15 @@ public class AuthorizeController {
     @Value("${github.Redirect.uri}")
     private String redirectUri;
 
+
+
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
 
 
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code")String code,
                            @RequestParam(name = "state")String state,
-                           HttpServletRequest request,
                            HttpServletResponse response){
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
@@ -52,23 +54,37 @@ public class AuthorizeController {
         String accessToken = gitHubProvider.getAccessToken(accessTokenDTO);
         GithubUser githubUser = gitHubProvider.getUser(accessToken);
         System.out.println(githubUser.getName());
-        //如果返回的githubuser不为空，登录成功，写cookie和seeion
+        System.out.println(githubUser.getAvatarUrl());
         if (githubUser != null){
-
             User user = new User();
             String token = UUID.randomUUID().toString();
             user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId()));
-            user.setGmtCreate(System.currentTimeMillis());
-            user.setGmtModified(user.getGmtCreate());
-            userMapper.insert(user);
-            response.addCookie(new Cookie("token",token));
-
+            user.setAvatarUrl(githubUser.getAvatarUrl());
+            if(user.getAccountId() == null){
+                return "redirect:/";
+            }
+            userService.creatOrUpdate(user);
+            Cookie cookie = new Cookie("token", token);
+            cookie.setMaxAge(864000);
+            response.addCookie(cookie);
             return "redirect:/";
         }else{
             return "redirect:/";
         }
 
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response){
+        //清除seeion
+        request.getSession().removeAttribute("user");
+        //移除cookie
+        Cookie cookie = new Cookie("token",null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
     }
 }
