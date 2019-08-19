@@ -31,7 +31,14 @@
                th:if="${session.user!=null && question.creator == session.user.getId()}">
                 <span class="glyphicon glyphicon-pencil" aria-invalid="true"
                 th:if="${question.user.getId() == session.user.getId()}"></span>
-                编 辑
+                编辑
+            </a>
+            <a href="/publish/delete" class="community-menu"
+               th:if="${session.user!=null && question.creator == session.user.getId()}">
+                <input type="hidden" name="id" th:value="${question.id}">
+                <span class="glyphicon glyphicon-minus" aria-invalid="true"
+                th:if="${question.user.getId() == session.user.getId()}"></span>
+                删除
             </a>
 
         </div>
