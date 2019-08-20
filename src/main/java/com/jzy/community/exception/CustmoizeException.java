@@ -6,9 +6,15 @@ package com.jzy.community.exception;
  */
 public class CustmoizeException extends RuntimeException {
     private String message;
+    private Integer code;
 
-    public CustmoizeException(String message) {
-        this.message = message;
+    public CustmoizeException(ICustomizeErrorCode errorCode) {
+        this.code = errorCode.getCode();
+        this.message = errorCode.getMassage();
+    }
+
+    public Integer getCode() {
+        return code;
     }
 
     @Override

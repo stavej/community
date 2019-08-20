@@ -2,12 +2,14 @@ package com.jzy.community.service;
 
 import com.jzy.community.dto.PaginationDTO;
 import com.jzy.community.dto.QuestionDTO;
+import com.jzy.community.exception.CustmoizeException;
+import com.jzy.community.exception.CustomizeErrorCode;
+import com.jzy.community.mapper.QuestionExtMapper;
 import com.jzy.community.mapper.QuestionMapper;
 import com.jzy.community.mapper.UserMapper;
 import com.jzy.community.model.Question;
 import com.jzy.community.model.QuestionExample;
 import com.jzy.community.model.User;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QEncoderStream;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class QuestionService {
     private QuestionMapper questionMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private QuestionExtMapper questionExtMapper;
 
 
     public PaginationDTO list(Integer page, Integer size) {
@@ -57,7 +61,7 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public PaginationDTO list(Integer userId,Integer page, Integer size) {
+    public PaginationDTO list(Long userId,Integer page, Integer size) {
         PaginationDTO paginationDTO = new PaginationDTO();
         QuestionExample example = new QuestionExample();
         example.createCriteria()
@@ -94,8 +98,11 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public QuestionDTO getById(Integer id) {
+    public QuestionDTO getById(Long id) {
         Question question = questionMapper.selectByPrimaryKey(id);
+        if (question == null){
+            throw new CustmoizeException(CustomizeErrorCode.QUESTION_NOT_FOUNG);
+        }
         User user = userMapper.selectByPrimaryKey(question.getCreator());
         QuestionDTO questionDTO = new QuestionDTO();
         //BeanUtils工具类中的copyProperties方法可以将参数左边对象的属性赋值给右边对象的属性
@@ -110,6 +117,9 @@ public class QuestionService {
             //创建
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtCreate(question.getGmtCreate());
+            question.setViewCount(0);
+            question.setLikeCount(0);
+            question.setCommentCount(0);
             questionMapper.insert(question);
         }else {
             //更新
@@ -122,16 +132,30 @@ public class QuestionService {
             example.createCriteria()
                     .andIdEqualTo(question.getId());
             questionMapper.updateByExampleSelective(updateQuestion, example);
+            int updated = questionMapper.updateByExampleSelective(updateQuestion,example);
+            if (updated != 1){
+                throw new CustmoizeException(CustomizeErrorCode.QUESTION_NOT_FOUNG);
+            }
         }
     }
 
-    public void addViewCount(Integer id) {
+    public void addViewCount(Long id) {
         Question updateQuestion = new Question();
         Question question = questionMapper.selectByPrimaryKey(id);
+        if (question == null){
+            throw new CustmoizeException(CustomizeErrorCode.QUESTION_NOT_FOUNG);
+        }
         updateQuestion.setViewCount(question.getViewCount()+1);
         QuestionExample example = new QuestionExample();
         example.createCriteria()
                 .andIdEqualTo(id);
         questionMapper.updateByExampleSelective(updateQuestion, example);
+    }
+
+    public void incView(Long id) {
+        Question question = new Question();
+        question.setId(id);
+        question.setViewCount(1);
+        questionExtMapper.incView(question);
     }
 }

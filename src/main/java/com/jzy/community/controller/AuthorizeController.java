@@ -2,7 +2,6 @@ package com.jzy.community.controller;
 
 import com.jzy.community.dto.AccessTokenDTO;
 import com.jzy.community.dto.GithubUser;
-import com.jzy.community.mapper.UserMapper;
 import com.jzy.community.model.User;
 import com.jzy.community.provider.GitHubProvider;
 import com.jzy.community.service.UserService;
