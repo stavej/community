@@ -30,6 +30,9 @@
                     <textarea class="form-control" id="description" name="description" th:text="${description}"
                               cols="30" rows="10"></textarea>
                 </div>
+
+                <!--标签-->
+
                 <div class="form-group">
                     <label for="title">添加标签：</label>
                     <input type="text" class="form-control" id="tag" name="tag" th:value="${tag}"
@@ -37,7 +40,7 @@
                 </div>
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" >
+                        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                             <div class="alert alert-danger col-lg-12 col-md-12 col-sm-12 col-xs-12" th:text="${error}"
                                  th:if="${error != null}"></div>
                         </div>

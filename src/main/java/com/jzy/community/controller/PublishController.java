@@ -1,5 +1,6 @@
 package com.jzy.community.controller;
 
+import cache.TagCache;
 import com.jzy.community.dto.QuestionDTO;
 import com.jzy.community.mapper.QuestionMapper;
 import com.jzy.community.model.Question;
@@ -55,6 +56,7 @@ public class PublishController {
         model.addAttribute("title",title);
         model.addAttribute("description",description);
         model.addAttribute("tag",tag);
+        //model.addAttribute("tags", TagCache.get());
         User user = (User) request.getSession().getAttribute("user");
         if(user == null){
             model.addAttribute("error","用户未登录");

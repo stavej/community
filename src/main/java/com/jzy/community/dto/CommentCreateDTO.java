@@ -7,7 +7,7 @@ import lombok.Data;
  * @create 2019-08-20-8:44
  */
 @Data
-public class CommentDto {
+public class CommentCreateDTO {
     private Long parentId;
     private String content;
     private Integer type;
