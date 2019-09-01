@@ -2,6 +2,7 @@ package com.jzy.community.service;
 
 import com.jzy.community.dto.PaginationDTO;
 import com.jzy.community.dto.QuestionDTO;
+import com.jzy.community.dto.QuestionQueryDTO;
 import com.jzy.community.exception.CustmoizeException;
 import com.jzy.community.exception.CustomizeErrorCode;
 import com.jzy.community.mapper.QuestionExtMapper;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,56 +35,77 @@ public class QuestionService {
     @Autowired
     private QuestionExtMapper questionExtMapper;
 
-
-    public PaginationDTO list(Integer page, Integer size) {
-        PaginationDTO paginationDTO = new PaginationDTO();
-        Integer totalcount = (int)questionMapper.countByExample(new QuestionExample());
-        paginationDTO.setPagination(totalcount,page,size);
-
-        if (page <1){
-            page=1;
-        }
-        if (page>paginationDTO.getTotalPage()){
-            page=paginationDTO.getTotalPage();
+    //访问首页或搜索调用
+    public PaginationDTO list(String search, Integer page, Integer size) {
+        //判断参数search的值是否存在，存在则把search拼接成mysql能够正则匹配的字符串
+        if (StringUtils.isNotBlank(search)) {
+            String[] searchs = StringUtils.split(search, " ");
+            search = Arrays.stream(searchs).collect(Collectors.joining("|"));
+        }else {
+            search =null;
         }
 
-        Integer offset = size*(page-1);
-        QuestionExample questionExample = new QuestionExample();
-        questionExample.setOrderByClause("gmt_create desc");//倒序
-        List<Question> questions = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
+
+        PaginationDTO paginationDTO = new PaginationDTO();//分页对象
+        QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();//查询问题对象
+
+        questionQueryDTO.setSearch(search);
+
+
+        //查询问题总数，如果是带search的，可以根据seacrh的值匹配相关问题的总数
+        Integer totalcount = questionExtMapper.getTotalCount(questionQueryDTO);
+        //根据问题总数，offset（当前页），size（页面显示的问题数）得到分页相关的属性
+        paginationDTO.setPagination(totalcount, page, size);
+
+        if (page < 1) {
+            page = 1;
+        }
+        if (page > paginationDTO.getTotalPage()) {
+            page = paginationDTO.getTotalPage();
+        }
+
+        //拿到问题的list
+        Integer offset = size * (page - 1);
+        questionQueryDTO.setOffset(offset);
+        questionQueryDTO.setSize(size);
+        List<Question> questions = questionExtMapper.selectAllOrSearchQusetion(questionQueryDTO);
+
         List<QuestionDTO> questionDTOList = new ArrayList<>();
 
         for (Question question : questions) {
             User user = userMapper.selectByPrimaryKey(question.getCreator());
             QuestionDTO questionDTO = new QuestionDTO();
             //BeanUtils工具类中的copyProperties方法可以将参数左边对象的属性赋值给右边对象的属性
-            BeanUtils.copyProperties(question,questionDTO);
+            BeanUtils.copyProperties(question, questionDTO);
             questionDTO.setUser(user);
             questionDTOList.add(questionDTO);
         }
+        paginationDTO.setSearch(search);
         paginationDTO.setData(questionDTOList);
 
         return paginationDTO;
     }
 
-    public PaginationDTO list(Long userId,Integer page, Integer size) {
+
+    //访问我的问题调用
+    public PaginationDTO list(Long userId, Integer page, Integer size) {
         PaginationDTO paginationDTO = new PaginationDTO();
         QuestionExample example = new QuestionExample();
         example.createCriteria()
                 .andCreatorEqualTo(userId);
 
-        Integer totalcount = (int)questionMapper.countByExample(example);
+        Integer totalcount = (int) questionMapper.countByExample(example);
 
-        paginationDTO.setPagination(totalcount,page,size);
+        paginationDTO.setPagination(totalcount, page, size);
 
-        if (page <1){
-            page=1;
+        if (page < 1) {
+            page = 1;
         }
-        if (page>paginationDTO.getTotalPage()){
-            page=paginationDTO.getTotalPage();
+        if (page > paginationDTO.getTotalPage()) {
+            page = paginationDTO.getTotalPage();
         }
 
-        Integer offset = size*(page-1);
+        Integer offset = size * (page - 1);
         QuestionExample questionExample = new QuestionExample();
         questionExample.createCriteria()
                 .andCreatorEqualTo(userId);
@@ -95,7 +118,7 @@ public class QuestionService {
             User user = userMapper.selectByPrimaryKey(question.getCreator());
             QuestionDTO questionDTO = new QuestionDTO();
             //BeanUtils工具类中的copyProperties方法可以将参数左边对象的属性赋值给右边对象的属性
-            BeanUtils.copyProperties(question,questionDTO);
+            BeanUtils.copyProperties(question, questionDTO);
             questionDTO.setUser(user);
             questionDTOList.add(questionDTO);
         }
@@ -104,20 +127,22 @@ public class QuestionService {
         return paginationDTO;
     }
 
+
+    //问题id拿到questiondto对象（包含user）
     public QuestionDTO getById(Long id) {
         Question question = questionMapper.selectByPrimaryKey(id);
-        if (question == null){
+        if (question == null) {
             throw new CustmoizeException(CustomizeErrorCode.QUESTION_NOT_FOUNG);
         }
         User user = userMapper.selectByPrimaryKey(question.getCreator());
         QuestionDTO questionDTO = new QuestionDTO();
         //BeanUtils工具类中的copyProperties方法可以将参数左边对象的属性赋值给右边对象的属性
-        BeanUtils.copyProperties(question,questionDTO);
+        BeanUtils.copyProperties(question, questionDTO);
         questionDTO.setUser(user);
         return questionDTO;
     }
 
-
+    //发布新问题还是修改问题
     public void createOrUpdate(Question question) {
         if (question.getId() == null) {
             //创建
@@ -127,7 +152,7 @@ public class QuestionService {
             question.setLikeCount(0);
             question.setCommentCount(0);
             questionMapper.insert(question);
-        }else {
+        } else {
             //更新
             Question updateQuestion = new Question();
             updateQuestion.setGmtModified(System.currentTimeMillis());
@@ -138,15 +163,15 @@ public class QuestionService {
             example.createCriteria()
                     .andIdEqualTo(question.getId());
             questionMapper.updateByExampleSelective(updateQuestion, example);
-            int updated = questionMapper.updateByExampleSelective(updateQuestion,example);
-            if (updated != 1){
+            int updated = questionMapper.updateByExampleSelective(updateQuestion, example);
+            if (updated != 1) {
                 throw new CustmoizeException(CustomizeErrorCode.QUESTION_NOT_FOUNG);
             }
         }
     }
 
 
-
+    //增加阅读数
     public void incView(Long id) {
         Question question = new Question();
         question.setId(id);
@@ -154,8 +179,9 @@ public class QuestionService {
         questionExtMapper.incView(question);
     }
 
+    //根据问题的标签获取它的相关问题（需要修改）
     public List<QuestionDTO> selectRelated(QuestionDTO queryQuestionDTO) {
-        if (StringUtils.isBlank(queryQuestionDTO.getTag())){
+        if (StringUtils.isBlank(queryQuestionDTO.getTag())) {
             return new ArrayList<>();
         }
         String regexpTag = StringUtils.replace(queryQuestionDTO.getTag(), ",", "|");

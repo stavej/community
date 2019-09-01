@@ -20,6 +20,7 @@ public class PaginationDTO<T> {
     //前端需要显示的页数列表
     private List<Integer> pages = new ArrayList<>();
     private Integer totalPage;
+    private String search;
 
     public void setPagination(Integer totalcount, Integer page, Integer size) {
 

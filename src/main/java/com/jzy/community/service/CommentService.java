@@ -68,9 +68,9 @@ public class CommentService {
             parentComment.setCommentCount(1);
             commentExtMapper.incCommentCount(parentComment);
             //创建通知,判断评论人是否和父评论人一致，如一致则不发起通知
-            //if (comment.getCommentator() != dbComment.getCommentator()){
+            if (comment.getCommentator() != dbComment.getCommentator()) {
                 creatNotify(comment, dbComment.getCommentator(), NotificationTypeEnum.REPLY_COMMENT);
-            //}
+            }
 
 
         } else {
@@ -84,9 +84,9 @@ public class CommentService {
             question.setCommentCount(1);
             questionExtMapper.incCommentCount(question);
             //创建通知,判断评论人是否和问题发起人一致，如一致则不发起通知
-           // if (comment.getCommentator() != question.getCreator()){
+            if (comment.getCommentator() != question.getCreator()) {
                 creatNotify(comment, question.getCreator(), NotificationTypeEnum.REPLY_QUESTION);
-            //}
+            }
 
         }
     }
@@ -116,7 +116,11 @@ public class CommentService {
         commentExample.createCriteria()
                 .andParentIdEqualTo(id)
                 .andTypeEqualTo(type.getType());
-        commentExample.setOrderByClause("gmt_create desc");
+        //评论倒序（是问题的评论就倒序，评论的回复就正序）
+        if (type.getType() == 1){
+            commentExample.setOrderByClause("gmt_create desc");
+        }
+
         List<Comment> comments = commentMapper.selectByExample(commentExample);
 
         if (comments.size() == 0) {

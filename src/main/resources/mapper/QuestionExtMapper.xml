@@ -1,36 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jzy.community.mapper.QuestionExtMapper">
-  <resultMap id="BaseResultMap" type="com.jzy.community.model.Question">
-    <id column="ID" jdbcType="INTEGER" property="id"/>
-    <result column="TITLE" jdbcType="VARCHAR" property="title"/>
-    <result column="GMT_CREATE" jdbcType="BIGINT" property="gmtCreate"/>
-    <result column="GMT_MODIFIED" jdbcType="BIGINT" property="gmtModified"/>
-    <result column="CREATOR" jdbcType="INTEGER" property="creator"/>
-    <result column="COMMENT_COUNT" jdbcType="INTEGER" property="commentCount"/>
-    <result column="VIEW_COUNT" jdbcType="INTEGER" property="viewCount"/>
-    <result column="LIKE_COUNT" jdbcType="INTEGER" property="likeCount"/>
-    <result column="TAG" jdbcType="VARCHAR" property="tag"/>
-  </resultMap>
+    <resultMap id="BaseResultMap" type="com.jzy.community.model.Question">
+        <id column="ID" jdbcType="INTEGER" property="id"/>
+        <result column="TITLE" jdbcType="VARCHAR" property="title"/>
+        <result column="GMT_CREATE" jdbcType="BIGINT" property="gmtCreate"/>
+        <result column="GMT_MODIFIED" jdbcType="BIGINT" property="gmtModified"/>
+        <result column="CREATOR" jdbcType="INTEGER" property="creator"/>
+        <result column="COMMENT_COUNT" jdbcType="INTEGER" property="commentCount"/>
+        <result column="VIEW_COUNT" jdbcType="INTEGER" property="viewCount"/>
+        <result column="LIKE_COUNT" jdbcType="INTEGER" property="likeCount"/>
+        <result column="TAG" jdbcType="VARCHAR" property="tag"/>
+    </resultMap>
 
-  <update id="incView" parameterType="com.jzy.community.model.Question">
+    <update id="incView" parameterType="com.jzy.community.model.Question">
     update QUESTION
     set
     VIEW_COUNT = VIEW_COUNT + #{viewCount,jdbcType=INTEGER}
     where id = #{id}
   </update>
 
-  <update id="incCommentCount" parameterType="com.jzy.community.model.Question">
+    <update id="incCommentCount" parameterType="com.jzy.community.model.Question">
     update QUESTION
     set
     comment_count = comment_count + #{commentCount,jdbcType=INTEGER}
     where id = #{id}
   </update>
 
-  <select id="selectRelated" parameterType="com.jzy.community.model.Question" resultMap="BaseResultMap">
+    <select id="selectRelated" parameterType="com.jzy.community.model.Question" resultMap="BaseResultMap">
     select * from question where id != #{id} and tag regexp #{tag}
 
-  </select>
+    </select>
+
+    <select id="getTotalCount" parameterType="com.jzy.community.dto.QuestionQueryDTO" resultType="java.lang.Integer">
+        select count(*) from question
+        <where>
+            <if test="search != null">
+                 title regexp #{search}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectAllOrSearchQusetion" parameterType="com.jzy.community.dto.QuestionQueryDTO" resultMap="BaseResultMap">
+        select * from question
+        <where>
+            <if test="search != null">
+                 title regexp #{search}
+            </if>
+        </where>
+        order by gmt_create desc limit #{offset},#{size}
+    </select>
 
 
 </mapper>

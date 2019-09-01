@@ -3,7 +3,6 @@ package com.jzy.community.controller;
 import com.jzy.community.dto.CommentDTO;
 import com.jzy.community.dto.QuestionDTO;
 import com.jzy.community.enums.CommentTypeEnum;
-import com.jzy.community.model.Question;
 import com.jzy.community.service.CommentService;
 import com.jzy.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,8 @@ public class QuestionController {
     public String question(@PathVariable(name = "id") Long id, Model model){
         //累加阅读数
         questionService.incView(id);
-        List<CommentDTO> comments = commentService.listByTargetId(id, CommentTypeEnum.QUESTION);
-        QuestionDTO questionDTO = questionService.getById(id);
+        List<CommentDTO> comments = commentService.listByTargetId(id, CommentTypeEnum.QUESTION);//拿到该问题页的评论
+        QuestionDTO questionDTO = questionService.getById(id);//拿到问题
         List<QuestionDTO> relateQuestions = questionService.selectRelated(questionDTO);
         model.addAttribute("question",questionDTO);
         model.addAttribute("comments",comments);

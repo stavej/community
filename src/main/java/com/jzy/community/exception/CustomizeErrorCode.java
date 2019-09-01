@@ -14,6 +14,7 @@ public enum CustomizeErrorCode implements ICustomizeErrorCode{
     CONTENT_IS_EMPTY(2007,"输入内容不能为空"),
     READ_NOTIFICATION_FAIL(2008,"兄弟你这是读别人的信息呢？"),
     NOTIFICATION_NOT_FOUNG(2009,"消息不翼而飞了？"),
+    USER_NOT_QUESUSER(2010,"兄弟你这是要改别的问题？"),
     ;
 
 
