@@ -1,10 +1,14 @@
 body {
-    background-color: #efefef;
+    background-image: url(/images/bg.jpg);
 }
 
 .main {
     background-color: white;
-    margin: 30px 50px;
+    margin: 30px 200px;
+}
+
+.myheader{
+    margin: 0px 200px;
 }
 
 .btn-pulish {
@@ -135,4 +139,10 @@ body {
 
 .container-fluid .replies-count{
     margin-bottom: 3px;
+}
+
+.footer{
+    margin:12px 0 10px 0;
+    text-align: center;
+    color: #666;
 }
