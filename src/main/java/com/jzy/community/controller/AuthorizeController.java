@@ -5,6 +5,7 @@ import com.jzy.community.dto.GithubUser;
 import com.jzy.community.model.User;
 import com.jzy.community.provider.GitHubProvider;
 import com.jzy.community.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import java.util.UUID;
  * @author jzy
  * @create 2019-08-06-15:40
  */
+@Slf4j
 @Controller
 public class AuthorizeController {
     @Autowired
@@ -54,7 +56,7 @@ public class AuthorizeController {
         GithubUser githubUser = gitHubProvider.getUser(accessToken);
         System.out.println(githubUser.getName());
         System.out.println(githubUser.getAvatarUrl());
-        if (githubUser != null){
+        if (githubUser != null && githubUser.getId() != null){
             User user = new User();
             String token = UUID.randomUUID().toString();
             user.setToken(token);
@@ -70,7 +72,8 @@ public class AuthorizeController {
             response.addCookie(cookie);
             return "redirect:/";
         }else{
-            return "redirect:/";
+            log.error("callback get github error,{}",githubUser);
+            return "redirect:/";//登录失败，重新登录
         }
 
     }
