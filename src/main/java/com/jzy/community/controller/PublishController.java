@@ -43,7 +43,10 @@ public class PublishController {
         Question dbquestion = questionMapper.selectByPrimaryKey(id);
         User quesUser = userMapper.selectByPrimaryKey(dbquestion.getCreator());
         User currentUser = (User) request.getSession().getAttribute("user");
-        if (quesUser.getAccountId() != currentUser.getAccountId()){
+        String id1 = quesUser.getAccountId();
+        String id2 = currentUser.getAccountId();
+        boolean b = !id1.equals(id2);
+        if (b){
             throw new CustmoizeException(CustomizeErrorCode.USER_NOT_QUESUSER);
         }
         QuestionDTO question = questionService.getById(id);
