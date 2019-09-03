@@ -16,7 +16,7 @@
     <update id="incView" parameterType="com.jzy.community.model.Question">
     update QUESTION
     set
-    VIEW_COUNT = VIEW_COUNT + #{viewCount,jdbcType=INTEGER}
+    view_count = view_count + #{viewCount,jdbcType=INTEGER}
     where id = #{id}
   </update>
 
