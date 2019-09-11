@@ -8,13 +8,11 @@ import com.jzy.community.mapper.UserMapper;
 import com.jzy.community.model.Question;
 import com.jzy.community.model.User;
 import com.jzy.community.service.QuestionService;
+import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -104,5 +102,13 @@ public class PublishController {
         question.setId(id);
         questionService.createOrUpdate(question);
         return "redirect:/";
+    }
+
+    @RequestMapping("/publish/delete/{id}")
+    public String delete(@PathVariable(name = "id") Long id,
+                         HttpServletRequest request){
+        User user = (User)request.getSession().getAttribute("user");
+        questionService.delete(id,user);
+        return "redirect:/profile/questions";
     }
 }

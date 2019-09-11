@@ -53,6 +53,16 @@ function comment(e) {
     comment2target(commentId,2,content);
 }
 
+function deletequstion() {
+    var questionId= $("#question_id").val();
+    var isAccepetd = confirm("是否删除该提问？");
+    debugger;
+    if (isAccepetd) {
+        window.open("http://localhost/publish/delete/"+questionId);
+    }
+
+}
+
 
 
 

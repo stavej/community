@@ -198,4 +198,12 @@ public class QuestionService {
         return questionDTOS;
 
     }
+
+    public void delete(Long id, User user) {
+        User questionCreator = userMapper.selectByPrimaryKey(questionMapper.selectByPrimaryKey(id).getCreator());
+        if (!questionCreator.getAccountId().equals(user.getAccountId())){
+            throw new CustmoizeException(CustomizeErrorCode.DEL_QUESTION_FAIL);
+        }
+        questionMapper.deleteByPrimaryKey(id);
+    }
 }
