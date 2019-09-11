@@ -56,9 +56,8 @@ function comment(e) {
 function deletequstion() {
     var questionId= $("#question_id").val();
     var isAccepetd = confirm("是否删除该提问？");
-    debugger;
     if (isAccepetd) {
-        window.open("http://localhost/publish/delete/"+questionId);
+        window.open("http://106.75.30.28/publish/delete/"+questionId);
     }
 
 }
