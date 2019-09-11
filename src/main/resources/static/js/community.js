@@ -53,15 +53,15 @@ function comment(e) {
     comment2target(commentId,2,content);
 }
 
-function deletequstion() {
-    var questionId= $("#question_id").val();
+function deletequstion(e) {
+    var questionId = e.getAttribute("data-id");
+    console.log(questionId);
     var isAccepetd = confirm("是否删除该提问？");
     if (isAccepetd) {
-        window.open("http://106.75.30.28/publish/delete/"+questionId);
+        window.location.href = ("http://106.75.30.28/publish/delete/" + questionId);
     }
 
 }
-
 
 
 
