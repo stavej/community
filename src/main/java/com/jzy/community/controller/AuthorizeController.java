@@ -48,6 +48,7 @@ public class AuthorizeController {
                            HttpServletResponse response){
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
+        System.out.println(redirectUri);
         accessTokenDTO.setRedirect_uri(redirectUri);
         accessTokenDTO.setClient_id(clientId);
         accessTokenDTO.setClient_secret(clientSecret);
