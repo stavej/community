@@ -8,7 +8,6 @@ import com.jzy.community.mapper.UserMapper;
 import com.jzy.community.model.Question;
 import com.jzy.community.model.User;
 import com.jzy.community.service.QuestionService;
-import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
